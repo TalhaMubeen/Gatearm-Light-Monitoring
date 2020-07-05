@@ -1,0 +1,47 @@
+{
+    "GLM" : {
+        "MY_ID" : "GLM01",
+
+        "MQTT": 
+        {
+            "HOST_ADDRESS"        : "52.171.141.250",
+            "PORT"                : 1883,
+            "USER_NAME"           : "tdmclient",
+            "PASSWORD"            : "RWSSadmin123",
+            "Customer"            : "TekTracking",
+            "Product"             : "GLM",
+            "TOPIC"               : "live",
+            "KEEP_ALIVE_INTERVAL" : 120,
+            "QOS"                 : 0
+        },
+
+
+        "DIAGNOSTICS" : 
+        {
+            "LOG_PATH" 		: "/home/GLM/DIAGNOSTICS/LOGS/",
+            "VIDEO_LOG_PATH" 	: "/home/GLM/DIAGNOSTICS/RECORDINGS/",
+            "IMAGE_LOG_PATH" 	: "/home/GLM/DIAGNOSTICS/IMAGES/",
+            "DetailLogEnabled"  : false 
+        },
+
+
+
+        "HTTP":
+        {
+            "FILE_UPLOAD_URL" 	: "http://52.171.141.250:8080/glm/#/upload"
+        },
+
+        "Recording":
+        {
+            "Resolution_Width" 	: 1024,
+            "Resolution_Height" : 1024,
+            "Recording_Timeout" : 8,
+            "FramePerSecond"    : 5
+        }, 
+
+        "LedDetector":
+        {
+            "LedCordinatesFilePath": "/home/GLM/VERSIONS/#.pckl"
+        }
+    }
+}

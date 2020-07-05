@@ -1,0 +1,30 @@
+{
+  "GLM": {
+    "DIAGNOSTICS": {
+      "LOG_PATH": "E:/logger/home/GLM/DIAGNOSTICS/LOGS6/",
+      "VIDEO_LOG_PATH": "E:/logger/home/GLM/DIAGNOSTICS/RECORDINGS6/",
+      "IMAGE_LOG_PATH": "E:/logger/home/GLM/DIAGNOSTICS/IMAGES6/"
+    },
+    "HTTP": {
+      "FILE_UPLOAD_URL": "http://52.171.141.250:8080/glm/#/upload"
+    },
+    "MQTT": {
+      "HOST_ADDRESS": "52.171.141.250",
+      "PORT": 1883,
+      "USER_NAME": "tdmclient",
+      "PASSWORD": "RWSSadmin123",
+      "Customer": "TekTracking",
+      "Product": "GLM",
+      "TOPIC": "live",
+      "KEEP_ALIVE_INTERVAL": 40,
+      "QOS": 0
+    },
+    "MY_ID": "GLM0TEST6",
+    "Recording": {
+      "Resolution_Width": 1024,
+      "Resolution_Height": 1024,
+      "Recording_Timeout": 10,
+      "FramePerSecond": 10
+    }
+  }
+}
