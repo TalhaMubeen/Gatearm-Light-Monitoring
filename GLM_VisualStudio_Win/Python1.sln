@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1169
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Python1", "Python1\Python1.pyproj", "{DBE2E0D4-9626-4010-92B7-BA911B9BC45C}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "LedDetector", "LedDetector\LedDetector.pyproj", "{B07376FA-B9B7-4204-96EA-9712445770CA}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "GLM APIs", "GLM APIs\GLM APIs.pyproj", "{3F4048A9-FCF9-48B3-B40F-2FF083C472D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Railway", "Railway", "{DA0DF847-D483-40D6-B1DE-D60D94D9C4D4}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "GLM_VisualStudio_Win", "GLM_VisualStudio_Win.pyproj", "{C1F8E3AE-8C4C-49A2-907B-C4C7EB01A14B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +25,14 @@ Global
 		{B07376FA-B9B7-4204-96EA-9712445770CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F4048A9-FCF9-48B3-B40F-2FF083C472D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F4048A9-FCF9-48B3-B40F-2FF083C472D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1F8E3AE-8C4C-49A2-907B-C4C7EB01A14B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1F8E3AE-8C4C-49A2-907B-C4C7EB01A14B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C1F8E3AE-8C4C-49A2-907B-C4C7EB01A14B} = {DA0DF847-D483-40D6-B1DE-D60D94D9C4D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8D13945-49F8-4EC4-897A-06E9366009F3}

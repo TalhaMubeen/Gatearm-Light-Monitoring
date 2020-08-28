@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import time
 from RepeatedTimer import PeriodicTimer
+
 #from Diagnostics import LocalLogger
 import pickle
 
@@ -40,7 +41,6 @@ class BlinkCounter(object):
             #self.logger.log(self.logger.ERROR,'Failed to Init ' +  self.whoami())
             raise ValueError()
 
-
     def GetYUVImage(self, image):
         yuvImage = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
         yuvImage = cv2.GaussianBlur(yuvImage, (5, 5), 0)
@@ -63,6 +63,33 @@ class BlinkCounter(object):
 
         return y, u_mapped, v_mapped
     
+    def Adjust_VMap(self, vmap, adjustment = 205):
+        y, x, _ = vmap.shape
+
+        #Adjustment of fisrt half of image
+        avg1 = np.mean(vmap[:,:,2][0:int(y/2), int(0):int(x)], axis=(0, 1))
+        avg2 = np.mean(vmap[:,:,2][int(y/2):int(y), int(0):int(x)], axis=(0, 1))
+        newavg = int((avg1 / adjustment) * 100)
+
+        if avg1 >= 120 and avg1 < 130:
+            newavg += (newavg / 1.2)
+        elif avg1 >= 130:
+            newavg += (avg1 - 100)
+        vmap[:,:,2][0:int(y/2), int(0):int(x)] += int(newavg)
+
+        #Adjustment of second half of image
+        newavg = int((avg2 / adjustment) * 100)
+        if avg2 >= 120 and avg2 < 130:
+            newavg /= 3
+        elif avg2 >= 130:
+             newavg = newavg - (newavg / 4)
+        vmap[:,:,2][int(y/2):int(y), int(0):int(x)] += int(newavg)
+        return vmap
+
+    def RedColorMask(self, image):
+
+        pass
+
     def GetLastLedBlinkState(self, image):
         ret = False
         if len(self.__LedLocations__) < 1:
@@ -80,14 +107,15 @@ class BlinkCounter(object):
         red_mask = cv2.bitwise_and(image, image, mask=mask)
         
         del mask, mask1, mask2, img_hsv
-        v_mapAdjustment = 120
-        V_AdjustmentFactor = 25
+
         _ , _ , v_mapped = self.GetYUVImage(image)
-        
+        v_mapped = self.Adjust_VMap(v_mapped)
+
         kernel_1 = np.ones((1, 1),np.uint8)
         kernel_2 = np.ones((2, 2),np.uint8)
         kernel_3 = np.ones((3, 3),np.uint8)
         self.__VerdictTimer__.restart()
+
         for  i in range(len(self.__LedLocations__)):
             (rectX, rectY), radius =  self.__LedLocations__[i][0] , self.__LedLocations__[i][1]
 
@@ -106,14 +134,8 @@ class BlinkCounter(object):
 
             col_end = int(rectY +( 2 * radius))
             row_end = int(rectX +( 2 * radius))
-
-            if i <= 1:
-                cropRGB = v_mapped[:,:,2][col_start:col_end, row_start:row_end]
-                v_mapAdjustment = v_mapAdjustment - (i * V_AdjustmentFactor)
-                cropRGB += v_mapAdjustment
-                cropRGB = cv2.bitwise_not(cropRGB)
-            else:
-                cropRGB = red_mask[:,:,2][col_start:col_end, row_start:row_end]
+                            
+            cropRGB = v_mapped[:,:,2][col_start:col_end, row_start:row_end]
 
             if not self.__FoundLED__[i]:
                self.__LedLocations__[i][3] = cropRGB
@@ -121,24 +143,31 @@ class BlinkCounter(object):
                continue
 
             prev = self.__LedLocations__[i][3]
-            
+
             err = np.sum((cropRGB.astype("float") - prev.astype("float")) ** 2)
             err /= float(prev.shape[0] * prev.shape[1])
             self.__LedLocations__[i][3] = []
             self.__LedLocations__[i][3] = cropRGB
-            
+
+            currentLedState = False
             if err > 20:  #Change is greater
-                ret,thresh1 = cv2.threshold(cropRGB,150,255,cv2.THRESH_BINARY) #Let red color ranger form 150-255 pass
+                cropRGB = cv2.bitwise_not(cropRGB)
+
+                ret,thresh1 = cv2.threshold(cropRGB,200,255,cv2.THRESH_BINARY) #Let red color ranger form 150-255 pass
                 thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel_1) #Remove Dots
                 thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN,  kernel_2) #Fill Connected Dots
                 thresh1 = cv2.dilate(thresh1, kernel_3, iterations = 6)
+
                 cv2.imshow("Thresh" + str(i) , thresh1)
                 cv2.imshow("v_mapped" + str(i) , v_mapped)
+
                 if cv2.countNonZero(thresh1) > 0:
-                    self.__LedLocations__[i][2] = True #Light is on
+                    currentLedState = True #Light is on
                 else:
-                    self.__LedLocations__[i][2] = False #Light is off
+                    currentLedState = False #Light is off
+                self.__LedLocations__[i][2] = currentLedState
                 del thresh1
+
             del prev 
 
         del image, kernel_1,kernel_2,kernel_3, red_mask, cropRGB
@@ -146,15 +175,21 @@ class BlinkCounter(object):
         return ret, self.__LedLocations__
 
     def SetPreviousLedLocations(self, filepath):
-        if len(self.__LedLocations__) == 0:
-            xyr = {}
-            f = open(filepath, 'rb')
-            obj = pickle.load(f)
-            f.close()
-            self.__LedLocations__ = obj
-            for  i in range(len(self.__LedLocations__)):
-                   self.__LedLocations__[i][2] = False
-                   self.__LedLocations__[i].append([]) #set previous light state later on for change comparison
+        if len(self.__LedLocations__) != 0:
+            self.__LedLocations__.clear()
+            self.ResetBlinkcounters()
+
+        xyr = {}
+        f = open(filepath, 'rb')
+        obj = pickle.load(f)
+        f.close()
+        self.__LedLocations__ = obj
+        for  i in range(len(self.__LedLocations__)):
+                self.__LedLocations__[i][2] = False
+                if len(self.__LedLocations__[i]) == 3:
+                    self.__LedLocations__[i].append([]) #set previous light state later on for change comparison
+                else:
+                    self.__LedLocations__[i][3] = []
 
     def IncrementLightCounter(self, lightId, isLightOn):
         count  = 0
@@ -239,7 +274,7 @@ class BlinkCounter(object):
         self.__LedLocations__.clear()
         self.__LedLocations__ = xyr
         if len(self.__LedLocations__) == 3:
-            self.StoreLedLocations();
+            self.StoreLedLocations()
 
     def StoreLedLocations(self):
         if len(self.__LedLocations__) == 3:

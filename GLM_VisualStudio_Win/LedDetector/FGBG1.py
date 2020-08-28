@@ -31,10 +31,10 @@ def get_part_of_day(hour):
         "night"
     )
 
-def StaticVideoSource(videoFile):
+def StaticVideoSource(videoFile , pckl):
     capture = cv2.VideoCapture(videoFile)
     i = 0;
-    blinkCounter.SetPreviousLedLocations('GLM1.pckl')  #Load leds location here
+    blinkCounter.SetPreviousLedLocations(pckl + '.pckl')  #Load leds location here
     frameCount  = 0
     previousLoc = []
     newFrame = False;
@@ -49,12 +49,14 @@ def StaticVideoSource(videoFile):
         ret1, frame1 = capture.read()
         if ret1 == False:
           capture.release()
+          blinkCounter.ResetBlinkcounters()
           break
         if ret1 == True:
             cropped = frame1.copy()
-            image2 = cropped[400:900, 450:730]
-            #image2 = cropped[500:900, 400:680]
-
+            if pckl == "GLM01":
+                image2 = cropped[400:900, 450:730]
+            else:
+                image2 = cropped[500:900, 400:680]
             orgnlFrame = image2.copy()
             ret, LightLoc = blinkCounter.GetLastLedBlinkState(image2)
 
@@ -75,21 +77,25 @@ def StaticVideoSource(videoFile):
                     count = blinkCounter.IncrementLightCounter(i, ret)
                     yloc = 60 + (30 * i)
                     if ret == True:
-                       # outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 255, 0), 2)
+                        outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 255, 0), 2)
                         foundOneLED[i] = True
-                        cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                        #cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
                     else:
-                        #outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 0, 255), 2)
-                        cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                        outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 0, 255), 2)
+                        #cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
                     blinkCounter.IncrementLightCounter(i, ret)
 
             newFrame = False        
+            if pckl == "GLM01":
+                frame1[400:900, 450:730] = orgnlFrame[0:, 0:]
+            else:
+                frame1[500:900, 400:680] = orgnlFrame[0:, 0:]
 
-            #frame1[500:900, 400:680] = orgnlFrame[0:, 0:]
-            frame1[400:900, 450:730] = orgnlFrame[0:, 0:]
+
             cv2.imshow('Detection Frame',frame1)
             cv2.waitKey(0)
+
  
 
 def CheckImageContours(cnts):
@@ -256,12 +262,12 @@ def FindNearByCountours(RedCnts, Lumancnts, image, contDist):
 
 if __name__ == '__main__':  
 
-    files = os.listdir("D:/Work/Python1/Test/")
+    files = os.listdir("../Test/")
     for file in files:
         if ".mp4" in file:
-            #pklfile = file.split('_')[0]
+            pklfile = file.split('_')[0]
             #obj = LedDetector(pklfile)
-            StaticVideoSource("D:/Work/Python1/Test/" + file)
+            StaticVideoSource("../Test/" + file, pklfile)
             cv2.waitKey(0)
 
     #print (cv2.__version__)

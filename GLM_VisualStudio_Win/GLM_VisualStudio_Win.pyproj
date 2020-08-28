@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{c1f8e3ae-8c4c-49a2-907b-c4c7eb01a14b}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>Railway\Railway_Tracking_main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="GLM APIs\Clients\HttpClient.py" />
+    <Compile Include="GLM APIs\Clients\MQTTClient.py" />
+    <Compile Include="GLM APIs\Clients\MQTTClientConfigurations.py" />
+    <Compile Include="GLM APIs\DATA\MQTTDataProcessor.py" />
+    <Compile Include="GLM APIs\Diagnosticss.py" />
+    <Compile Include="GLM APIs\Firmware_1\Diagnostics.py" />
+    <Compile Include="GLM APIs\Firmware_1\GateArmMovementDetection.py" />
+    <Compile Include="GLM APIs\Firmware_1\GLM.py" />
+    <Compile Include="GLM APIs\Firmware_1\HttpClient.py" />
+    <Compile Include="GLM APIs\Firmware_1\LiveCommandHandler.py" />
+    <Compile Include="GLM APIs\Firmware_1\MQTTClient.py" />
+    <Compile Include="GLM APIs\Firmware_1\MQTTDataProcessor.py" />
+    <Compile Include="GLM APIs\Firmware_1\RepeatedTimer.py" />
+    <Compile Include="GLM APIs\Firmware_1\StreamHandler.py" />
+    <Compile Include="GLM APIs\Firmware_1\VideoRecorder.py" />
+    <Compile Include="GLM APIs\RepeatedTimers.py" />
+    <Compile Include="GLM APIs\VideoRecorders.py" />
+    <Compile Include="LedDetector\CartCounter.py" />
+    <Compile Include="LedDetector\ColorWavelength.py" />
+    <Compile Include="LedDetector\FGBG.py" />
+    <Compile Include="LedDetector\FGBG1.py" />
+    <Compile Include="LedDetector\HoughLines.py" />
+    <Compile Include="LedDetector\Intensity.py" />
+    <Compile Include="LedDetector\LedBlinkCounter.py" />
+    <Compile Include="LedDetector\LedDetector.py" />
+    <Compile Include="LedDetector\module1.py" />
+    <Compile Include="LedDetector\ObjectTracking.py" />
+    <Compile Include="LedDetector\RedCircleDetector.py" />
+    <Compile Include="LedDetector\RepeatedTimer.py" />
+    <Compile Include="LedDetector\YUVSubstraction.py" />
+    <Compile Include="Railway\fcns_track_railway.py" />
+    <Compile Include="Railway\fcn_filter_matching.py" />
+    <Compile Include="Railway\lines.py" />
+    <Compile Include="Railway\objectDetection.py" />
+    <Compile Include="Railway\rail.py" />
+    <Compile Include="Railway\Railway_Tracking_main.py" />
+    <Compile Include="Railway\test_straight_track_analysis.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LedDetector\False.txt" />
+    <Content Include="LedDetector\Test.png" />
+    <Content Include="LedDetector\Test1.jpg" />
+    <Content Include="LedDetector\True.txt" />
+    <Content Include="Railway\gray_frame_14750.png" />
+    <Content Include="Railway\image-readme\execution.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GLM APIs" />
+    <Folder Include="GLM APIs\Clients" />
+    <Folder Include="GLM APIs\DATA" />
+    <Folder Include="GLM APIs\Firmware_1" />
+    <Folder Include="LedDetector" />
+    <Folder Include="Railway" />
+    <Folder Include="Railway\image-readme" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
