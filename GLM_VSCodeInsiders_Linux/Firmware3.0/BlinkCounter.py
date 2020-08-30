@@ -82,8 +82,30 @@ class BlinkCounter(object):
         elif avg2 >= 130:
              newavg = newavg - (newavg / 4)
         vmap[:,:,2][int(y/2):int(y), int(0):int(x)] += int(newavg)
-
         return vmap
+
+    def VMAP_LightDetection(self, vmapImage, i, isRedMask):
+
+        kernel_1 = np.ones((1, 1),np.uint8)
+        kernel_2 = np.ones((2, 2),np.uint8)
+        kernel_3 = np.ones((3, 3),np.uint8)
+        currentLedState = False
+        if not isRedMask:
+            vmapImage = cv2.bitwise_not(vmapImage)
+        
+        ret,thresh1 = cv2.threshold(vmapImage,200,255,cv2.THRESH_BINARY) #Let red color range pass bw 200-255
+        if ret:
+            thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel_1) #Remove Dots  (1x1 Kernel)
+            thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN,  kernel_2) #Fill Connected Dots (2x2 Kernel)
+            thresh1 = cv2.dilate(thresh1, kernel_3, iterations = 6)#Expand remaining Pixels (3x3 Kernel)
+
+            cv2.imshow("Thresh" + str(i) , thresh1)
+
+            if cv2.countNonZero(thresh1) > 0:
+                currentLedState = True #Light is on
+
+            del kernel_1, kernel_2, kernel_3, vmapImage, thresh1
+        return currentLedState
 
     def GetLastLedBlinkState(self, image):
         ret = False
@@ -100,15 +122,11 @@ class BlinkCounter(object):
         ## Merge the mask and crop the red regions
         mask = cv2.bitwise_or(mask1, mask2 )
         red_mask = cv2.bitwise_and(image, image, mask=mask)
-        
+
         del mask, mask1, mask2, img_hsv
 
         _ , _ , v_mapped = self.GetYUVImage(image)
         v_mapped = self.Adjust_VMap(v_mapped)
-
-        kernel_1 = np.ones((1, 1),np.uint8)
-        kernel_2 = np.ones((2, 2),np.uint8)
-        kernel_3 = np.ones((3, 3),np.uint8)
 
         for  i in range(len(self.__LedLocations__)):
             (rectX, rectY), radius =  self.__LedLocations__[i][0] , self.__LedLocations__[i][1]
@@ -129,37 +147,31 @@ class BlinkCounter(object):
             col_end = int(rectY +( 2 * radius))
             row_end = int(rectX +( 2 * radius))
                             
-            cropRGB = v_mapped[:,:,2][col_start:col_end, row_start:row_end]
-
+            cropR_VMAP     = v_mapped[:,:,2][col_start:col_end, row_start:row_end]
+            redMaskCropped = red_mask[:,:,2][col_start:col_end, row_start:row_end]
             if not self.__FoundLED__[i]:
-               self.__LedLocations__[i][3] = cropRGB
+               self.__LedLocations__[i][3] = cropR_VMAP
                self.__FoundLED__[i] = True
                continue
 
             prev = self.__LedLocations__[i][3]
 
-            err = np.sum((cropRGB.astype("float") - prev.astype("float")) ** 2)
+            err = np.sum((cropR_VMAP.astype("float") - prev.astype("float")) ** 2)
             err /= float(prev.shape[0] * prev.shape[1])
             self.__LedLocations__[i][3] = []
-            self.__LedLocations__[i][3] = cropRGB
-            
+            self.__LedLocations__[i][3] = cropR_VMAP
+
+            currentLedState = False
             if err > 20:  #Change is greater
-                cropRGB = cv2.bitwise_not(cropRGB)
-
-                ret,thresh1 = cv2.threshold(cropRGB,200,255,cv2.THRESH_BINARY) #Let red color ranger form 150-255 pass
-                thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel_1) #Remove Dots
-                thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN,  kernel_2) #Fill Connected Dots
-                thresh1 = cv2.dilate(thresh1, kernel_3, iterations = 6)
-
-                if cv2.countNonZero(thresh1) > 0:
-                    self.__LedLocations__[i][2] = True #Light is on
+                if not self.VMAP_LightDetection(redMaskCropped,i, True):
+                    currentLedState = self.VMAP_LightDetection(cropR_VMAP,i, False)
                 else:
-                    self.__LedLocations__[i][2] = False #Light is off
-                del thresh1
+                    currentLedState = True;
+                self.__LedLocations__[i][2] = currentLedState
 
             del prev 
 
-        del image, kernel_1,kernel_2,kernel_3, red_mask, cropRGB
+        del image, red_mask, cropR_VMAP
 
         return ret, self.__LedLocations__
 
