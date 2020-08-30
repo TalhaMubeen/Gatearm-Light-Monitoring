@@ -31,6 +31,13 @@ class BlinkCounter(object):
             self.__VerdictTimer__         = PeriodicTimer(10, self.GenerateVerdict)
 
             self.__FoundLED__             = [False,False,False]
+
+            self.__FoundBlackPixel__   = []
+            #Black Pixels Found (Bool, Count (total frames passed), Frame Passed after finding black pixels)
+            self.__FoundBlackPixel__.append([False, 0 ,0])
+            self.__FoundBlackPixel__.append([False, 0, 0])
+            self.__FoundBlackPixel__.append([False, 0, 0])
+
             self.__LedBlinkCounter__      = []
             self.__LedBlinkCounter__.append([0, [False, 0]])
             self.__LedBlinkCounter__.append([1, [False, 0]])
@@ -84,27 +91,56 @@ class BlinkCounter(object):
         vmap[:,:,2][int(y/2):int(y), int(0):int(x)] += int(newavg)
         return vmap
 
-    def VMAP_LightDetection(self, vmapImage, i, isRedMask):
-
+    def LightDetectionLogic(self, vmapImage, ledNumber):
+        TotalFramesToWaitForBlackPixels = 5 * 10
+        FramesPassedAfterBlackPixels = 5 * 2
         kernel_1 = np.ones((1, 1),np.uint8)
         kernel_2 = np.ones((2, 2),np.uint8)
         kernel_3 = np.ones((3, 3),np.uint8)
+
         currentLedState = False
-        if not isRedMask:
-            vmapImage = cv2.bitwise_not(vmapImage)
+        useWhitePixelsAlgo = False
+
+        totalNumOfWhitePixels = np.sum(vmapImage >= 200)
+        totalNumOfBlackPixels = np.sum(vmapImage <= 10)
+ 
+        if not self.__FoundBlackPixel__[ledNumber][0]:
+            if self.__FoundBlackPixel__[ledNumber][1] < TotalFramesToWaitForBlackPixels: #waiting for black spot (10 -Frames)
+                if totalNumOfBlackPixels < 5:
+                    self.__FoundBlackPixel__[ledNumber][1] += 1
+                else:
+                    if self.__FoundBlackPixel__[ledNumber][2] < FramesPassedAfterBlackPixels:
+                        self.__FoundBlackPixel__[ledNumber][2] += 1
+                    else: # we found Black pixel for 2 seconds after the gate-arm is completely down
+                        self.__FoundBlackPixel__[ledNumber][0] = True  
+            else: #10 Frmaes Passed and we didn't found black spot
+                useWhitePixelsAlgo = True
+ 
+        else:#using Black Pixels in image to detect light
+            if totalNumOfBlackPixels > 5:
+                #num of Black Pixels are greater than 10
+                #Light is ON
+                currentLedState = True
+            else:
+                #num of Black Pixels are less than 10
+                #Light is OFF
+                currentLedState = False
         
-        ret,thresh1 = cv2.threshold(vmapImage,200,255,cv2.THRESH_BINARY) #Let red color range pass bw 200-255
-        if ret:
-            thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_CLOSE, kernel_1) #Remove Dots  (1x1 Kernel)
-            thresh1 = cv2.morphologyEx(thresh1, cv2.MORPH_OPEN,  kernel_2) #Fill Connected Dots (2x2 Kernel)
-            thresh1 = cv2.dilate(thresh1, kernel_3, iterations = 6)#Expand remaining Pixels (3x3 Kernel)
+        if useWhitePixelsAlgo: # using White Pixels in image to detect light
+            if totalNumOfWhitePixels <= vmapImage.size / 95: 
+                #For Light 3 / Light Conditions are very dull
+                #num of white pixels are less than 95% of total Size
+                #Light is OFF
+                currentLedState = False
+            elif totalNumOfWhitePixels < vmapImage.size / 4:
+                #For Light 3 / Light Conditions are very dull
+                #num of white Pixels are greater than 1/4th of total size
+                #Light is ON
+                currentLedState = True
+            else:
+                pass
 
-            cv2.imshow("Thresh" + str(i) , thresh1)
-
-            if cv2.countNonZero(thresh1) > 0:
-                currentLedState = True #Light is on
-
-            del kernel_1, kernel_2, kernel_3, vmapImage, thresh1
+        del kernel_1, kernel_2, kernel_3, vmapImage
         return currentLedState
 
     def GetLastLedBlinkState(self, image):
@@ -113,19 +149,7 @@ class BlinkCounter(object):
             del image
             return ret, self.__LedLocations__
 
-        img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-        ## Gen lower mask (0-5) and upper mask (175-180) of RED
-        mask1 = cv2.inRange(img_hsv, (0,50,20), (5,255,255))
-        mask2 = cv2.inRange(img_hsv, (175,50,20), (180,255,255))
-
-        ## Merge the mask and crop the red regions
-        mask = cv2.bitwise_or(mask1, mask2 )
-        red_mask = cv2.bitwise_and(image, image, mask=mask)
-
-        del mask, mask1, mask2, img_hsv
-
-        _ , _ , v_mapped = self.GetYUVImage(image)
+        _, _ , v_mapped = self.GetYUVImage(image)
         v_mapped = self.Adjust_VMap(v_mapped)
 
         for  i in range(len(self.__LedLocations__)):
@@ -146,9 +170,9 @@ class BlinkCounter(object):
 
             col_end = int(rectY +( 2 * radius))
             row_end = int(rectX +( 2 * radius))
-                            
+
             cropR_VMAP     = v_mapped[:,:,2][col_start:col_end, row_start:row_end]
-            redMaskCropped = red_mask[:,:,2][col_start:col_end, row_start:row_end]
+
             if not self.__FoundLED__[i]:
                self.__LedLocations__[i][3] = cropR_VMAP
                self.__FoundLED__[i] = True
@@ -160,22 +184,21 @@ class BlinkCounter(object):
             err /= float(prev.shape[0] * prev.shape[1])
             self.__LedLocations__[i][3] = []
             self.__LedLocations__[i][3] = cropR_VMAP
-
             currentLedState = False
             if err > 20:  #Change is greater
-                if not self.VMAP_LightDetection(redMaskCropped,i, True):
-                    currentLedState = self.VMAP_LightDetection(cropR_VMAP,i, False)
-                else:
-                    currentLedState = True;
+                ret = True
+                currentLedState = self.LightDetectionLogic(cropR_VMAP,i)
                 self.__LedLocations__[i][2] = currentLedState
-
-            del prev 
-
-        del image, red_mask, cropR_VMAP
+            del prev
+        del image, cropR_VMAP
 
         return ret, self.__LedLocations__
 
     def SetPreviousLedLocations(self, filepath):
+        if len(self.__LedLocations__) != 0:
+            self.__LedLocations__.clear()
+            self.ResetBlinkcounters()
+
         xyr = {}
         f = open(filepath, 'rb')
         obj = pickle.load(f)
@@ -311,6 +334,11 @@ class BlinkCounter(object):
         return cnts
 
     def ResetBlinkcounters(self):
+        self.__FoundBlackPixel__.clear()
+        #Black Pixels Found (Bool, Count (total frames passed))
+        self.__FoundBlackPixel__.append([False, 0 ,0])
+        self.__FoundBlackPixel__.append([False, 0, 0])
+        self.__FoundBlackPixel__.append([False, 0, 0])
         self.__LedBlinkCounter__.clear()
         self.__FoundLED__ = [False, False, False]
         self.__LedBlinkCounter__.append([0, [False, 0]])
