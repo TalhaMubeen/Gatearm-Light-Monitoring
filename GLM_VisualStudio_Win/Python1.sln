@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.1169
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Python1", "Python1\Python1.pyproj", "{DBE2E0D4-9626-4010-92B7-BA911B9BC45C}"
-EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "LedDetector", "LedDetector\LedDetector.pyproj", "{B07376FA-B9B7-4204-96EA-9712445770CA}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "GLM APIs", "GLM APIs\GLM APIs.pyproj", "{3F4048A9-FCF9-48B3-B40F-2FF083C472D5}"
@@ -19,8 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DBE2E0D4-9626-4010-92B7-BA911B9BC45C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBE2E0D4-9626-4010-92B7-BA911B9BC45C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B07376FA-B9B7-4204-96EA-9712445770CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B07376FA-B9B7-4204-96EA-9712445770CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F4048A9-FCF9-48B3-B40F-2FF083C472D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

@@ -192,6 +192,3 @@ class VideoRecorder(object):
         if self.__is_streaming__ == True:
             self.stop_recording()
             self.__StreamingServer__.shutdown()
-
-    def Process(self):
-        pass

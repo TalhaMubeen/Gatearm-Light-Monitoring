@@ -75,14 +75,14 @@ def StaticVideoSource(videoFile , pckl):
 
                 else:
                     count = blinkCounter.IncrementLightCounter(i, ret)
-                    yloc = 60 + (30 * i)
+                    yloc = 60 + (60 * i)
                     if ret == True:
                         outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 255, 0), 2)
                         foundOneLED[i] = True
-                        #cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+                        cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
                     else:
                         outcircle = cv2.circle(orgnlFrame, (int(cX), int(cY)), radius,(0, 0, 255), 2)
-                        #cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+                        cv2.putText(frame1, 'LIGHT ' + str(i+1) + ' : '+ str(count), ( 5  , yloc + 10),cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
 
                     blinkCounter.IncrementLightCounter(i, ret)
 

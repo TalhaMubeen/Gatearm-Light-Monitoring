@@ -1,5 +1,7 @@
 {
   "GLM": {
+    "MY_ID": "GLM0TEST6",
+    "EIP_ID": "EIPPI4280820001",
     "DIAGNOSTICS": {
       "LOG_PATH": "E:/logger/home/GLM/DIAGNOSTICS/LOGS6/",
       "VIDEO_LOG_PATH": "E:/logger/home/GLM/DIAGNOSTICS/RECORDINGS6/",
@@ -19,7 +21,7 @@
       "KEEP_ALIVE_INTERVAL": 40,
       "QOS": 0
     },
-    "MY_ID": "GLM0TEST6",
+
     "Recording": {
       "Resolution_Width": 1024,
       "Resolution_Height": 1024,

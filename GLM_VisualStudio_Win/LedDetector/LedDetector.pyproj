@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b07376fa-b9b7-4204-96ea-9712445770ca</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>FGBG1.py</StartupFile>
+    <StartupFile>DesktopDataCollector.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,12 +25,25 @@
     <Compile Include="CartCounter.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DesktopDataCollector.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FGBG.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FGBG1.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FieldDeployed\BlinkCounter.py" />
+    <Compile Include="FieldDeployed\Diagnostics.py" />
+    <Compile Include="FieldDeployed\GLM.py" />
+    <Compile Include="FieldDeployed\HttpClient.py" />
+    <Compile Include="FieldDeployed\LedDetector.py" />
+    <Compile Include="FieldDeployed\LiveCommandHandler.py" />
+    <Compile Include="FieldDeployed\MQTTClient.py" />
+    <Compile Include="FieldDeployed\MQTTDataProcessor.py" />
+    <Compile Include="FieldDeployed\RepeatedTimer.py" />
+    <Compile Include="FieldDeployed\VideoRecorder.py" />
     <Compile Include="HoughLines.py">
       <SubType>Code</SubType>
     </Compile>
@@ -59,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FieldDeployed\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FieldDeployed\Configurations.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
